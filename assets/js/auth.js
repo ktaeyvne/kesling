@@ -51,7 +51,7 @@ const Auth = {
   async logout() {
     const { error } = await window.supabaseClient.auth.signOut();
     if (error) throw error;
-    window.location.href = '/login.html';
+    window.location.href = 'https://ktaeyvne.github.io/kesling/login.html';
   },
 
   // Forgot password
@@ -72,7 +72,7 @@ const Auth = {
   async requireAuth() {
     const session = await this.getSession();
     if (!session) {
-      window.location.href = '/login.html';
+      window.location.href = 'https://ktaeyvne.github.io/kesling//login.html';
       return null;
     }
     return session;
