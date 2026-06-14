@@ -72,7 +72,7 @@ const Auth = {
   async requireAuth() {
     const session = await this.getSession();
     if (!session) {
-      window.location.href = 'https://ktaeyvne.github.io/kesling//login.html';
+      window.location.href = 'https://ktaeyvne.github.io/kesling/login.html';
       return null;
     }
     return session;
