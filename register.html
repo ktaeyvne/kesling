@@ -115,7 +115,7 @@ document.getElementById('reg-form').addEventListener('submit', async (e) => {
   try {
     await Auth.register(email, password, { name, nim, angkatan });
     Toast.show('Akun berhasil dibuat! Cek email untuk konfirmasi.', 'success', 5000);
-    setTimeout(() => window.location.href = 'login.html', 2000);
+    setTimeout(() => window.location.href = 'https://ktaeyvne.github.io/kesling/login.html', 2000);
   } catch (err) {
     const msg = err.message.includes('already registered')
       ? 'Email sudah terdaftar, silakan login'
