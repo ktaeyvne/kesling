@@ -22,6 +22,7 @@ const Auth = {
       email,
       password,
       options: {
+        emailRedirectTo: 'https://ktaeyvne.github.io/kesling/login.html',
         data: {
           name: profile.name,
           nim: profile.nim,
@@ -101,5 +102,11 @@ const Auth = {
     return data;
   }
 };
+
+window.supabaseClient.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    window.location.href = 'https://ktaeyvne.github.io/kesling/dashboard.html';
+  }
+});
 
 window.Auth = Auth;
