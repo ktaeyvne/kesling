@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lupa Password — Kesling Archive D3</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="auth-bg-decor"></div>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🌿</div>
+      <div>
+        <div class="auth-logo-name">Kesling Archive</div>
+        <div class="auth-logo-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </div>
+    <h1 class="auth-title">Reset Password</h1>
+    <p class="auth-subtitle">Masukkan emailmu, kami kirimkan link reset</p>
+    <form class="auth-form" id="forgot-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="email@example.com" required />
+      </div>
+      <button class="btn btn-primary w-full btn-lg" type="submit" id="forgot-btn">Kirim Link Reset</button>
+    </form>
+    <p class="auth-footer"><a href="login.html">← Kembali ke Login</a></p>
+  </div>
+</div>
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!window.supabaseClient) { Toast.show('Koneksi belum siap', 'error'); return; }
+  const email = document.getElementById('email').value.trim();
+  const btn = document.getElementById('forgot-btn');
+  if (!email) return Toast.show('Masukkan email kamu', 'error');
+  btn.disabled = true; btn.textContent = 'Mengirim...';
+  try {
+    await Auth.forgotPassword(email);
+    Toast.show('Link reset berhasil dikirim! Cek emailmu.', 'success', 6000);
+    btn.textContent = 'Terkirim ✓';
+  } catch (err) {
+    Toast.show(err.message, 'error');
+    btn.disabled = false; btn.textContent = 'Kirim Link Reset';
+  }
+});
+</script>
+</body>
+</html>

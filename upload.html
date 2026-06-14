@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload File — Kesling Archive D3</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/upload.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar (sama seperti dashboard) -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div class="sidebar-logo-text">
+        <div class="app-name">Kesling Archive</div>
+        <div class="app-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </a>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Menu Utama</div>
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="upload.html" class="nav-item active"><span class="nav-icon">⬆️</span> Upload File</a>
+      <a href="search.html" class="nav-item"><span class="nav-icon">🔍</span> Cari File</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Semester</div>
+      <div class="semester-nav">
+        <a href="files.html?sem=1" class="nav-item"><span class="nav-icon">📚</span> Semester 1</a>
+        <a href="files.html?sem=2" class="nav-item"><span class="nav-icon">📚</span> Semester 2</a>
+        <a href="files.html?sem=3" class="nav-item"><span class="nav-icon">📚</span> Semester 3</a>
+        <a href="files.html?sem=4" class="nav-item"><span class="nav-icon">📚</span> Semester 4</a>
+        <a href="files.html?sem=5" class="nav-item"><span class="nav-icon">📚</span> Semester 5</a>
+        <a href="files.html?sem=6" class="nav-item"><span class="nav-icon">📚</span> Semester 6</a>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="avatar-placeholder" data-user-initials style="width:36px;height:36px;font-size:.9rem">?</div>
+        <div class="sidebar-user-info">
+          <div class="u-name" data-user-name>Loading...</div>
+          <div class="u-nim" data-user-nim>-</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="menu-btn">☰</button>
+        <span class="header-title">Upload File</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" id="theme-btn"><span id="theme-icon">🌙</span></button>
+        <button class="header-btn" id="logout-btn">🚪</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <span class="sep">›</span>
+        <span class="current">Upload File</span>
+      </div>
+
+      <div class="upload-layout">
+        <!-- Kiri: Dropzone + Queue -->
+        <div>
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="file-input" multiple accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.png,.jpg,.jpeg,.zip,.rar" />
+            <div class="dropzone-icon">☁️</div>
+            <h3>Drag & drop file di sini</h3>
+            <p>atau klik untuk memilih file</p>
+            <p class="dropzone-hint">PDF, DOCX, PPTX, XLSX, PNG, JPG, ZIP, RAR · Maks. 50 MB per file</p>
+          </div>
+
+          <div class="upload-queue" id="upload-queue"></div>
+        </div>
+
+        <!-- Kanan: Form Metadata -->
+        <div class="card">
+          <h3 style="margin-bottom:18px">📋 Informasi File</h3>
+          <form id="upload-form">
+            <div class="upload-form-grid">
+              <div class="form-group span-2">
+                <label class="form-label" for="f-title">Judul File</label>
+                <input class="form-input" type="text" id="f-title" placeholder="Contoh: Laporan Praktikum Mikrobiologi Air" />
+                <span class="form-hint">Kosongkan untuk menggunakan nama file asli</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-semester">Semester</label>
+                <select class="form-select" id="f-semester">
+                  <option value="">Pilih Semester</option>
+                  <option value="1">Semester 1</option>
+                  <option value="2">Semester 2</option>
+                  <option value="3">Semester 3</option>
+                  <option value="4">Semester 4</option>
+                  <option value="5">Semester 5</option>
+                  <option value="6">Semester 6</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="f-year">Tahun</label>
+                <input class="form-input" type="number" id="f-year" placeholder="2024" min="2020" max="2030" />
+              </div>
+              <div class="form-group span-2">
+                <label class="form-label" for="f-category">Kategori <span style="color:#ef4444">*</span></label>
+                <select class="form-select" id="f-category" required>
+                  <option value="">Pilih Kategori</option>
+                  <optgroup label="Umum">
+                    <option>Tugas</option>
+                    <option>Makalah</option>
+                    <option>Laporan Praktikum</option>
+                    <option>Presentasi</option>
+                    <option>Jurnal</option>
+                    <option>Modul</option>
+                    <option>PKL</option>
+                    <option>Tugas Akhir</option>
+                    <option>Sertifikat</option>
+                    <option>Administrasi</option>
+                  </optgroup>
+                  <optgroup label="Praktikum Kesling">
+                    <option>Praktikum Mikrobiologi</option>
+                    <option>Praktikum Air Bersih</option>
+                    <option>Praktikum Air Limbah</option>
+                    <option>Praktikum Tanah</option>
+                    <option>Praktikum Sanitasi</option>
+                    <option>Praktikum Vektor Penyakit</option>
+                    <option>Praktikum Higiene Sanitasi</option>
+                    <option>Praktikum Pengelolaan Sampah</option>
+                    <option>Praktikum K3</option>
+                    <option>Praktikum Kesehatan Lingkungan</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-group span-2">
+                <label class="form-label" for="f-course">Mata Kuliah</label>
+                <input class="form-input" type="text" id="f-course" placeholder="Contoh: Penyediaan Air Bersih" list="matkul-list" />
+                <datalist id="matkul-list">
+                  <option>Kesehatan Lingkungan Dasar</option>
+                  <option>Sanitasi Rumah Sakit</option>
+                  <option>Sanitasi Tempat Umum</option>
+                  <option>Sanitasi Makanan dan Minuman</option>
+                  <option>Penyediaan Air Bersih</option>
+                  <option>Pengolahan Air Limbah</option>
+                  <option>Pengelolaan Sampah</option>
+                  <option>Limbah B3</option>
+                  <option>Kesehatan dan Keselamatan Kerja</option>
+                  <option>Epidemiologi Dasar</option>
+                  <option>Hygiene Sanitasi</option>
+                  <option>Pengendalian Vektor</option>
+                  <option>AMDAL</option>
+                  <option>Mikrobiologi Lingkungan</option>
+                  <option>GIS dan Pemetaan Kesehatan</option>
+                  <option>Promosi Kesehatan</option>
+                </datalist>
+              </div>
+              <div class="form-group span-2">
+                <label class="form-label" for="f-dosen">Nama Dosen</label>
+                <input class="form-input" type="text" id="f-dosen" placeholder="Nama dosen pengampu" />
+              </div>
+              <div class="form-group span-2">
+                <label class="form-label" for="f-desc">Deskripsi</label>
+                <textarea class="form-textarea" id="f-desc" placeholder="Deskripsi singkat isi file..."></textarea>
+              </div>
+              <div class="form-group span-2">
+                <label class="form-label" for="f-tags">Tag</label>
+                <input class="form-input" type="text" id="f-tags" placeholder="air-bersih, coliform, mikrobiologi (pisahkan koma)" />
+                <span class="form-hint">Tag membantu pencarian lebih mudah</span>
+              </div>
+            </div>
+
+            <div style="margin-top:20px">
+              <button class="btn btn-primary w-full btn-lg" type="submit" id="submit-upload" disabled>
+                ⬆️ Upload File
+              </button>
+              <p style="font-size:.75rem;color:var(--text-faint);text-align:center;margin-top:8px">
+                File disimpan aman di Supabase Storage
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/upload.js"></script>
+<script>
+// Sidebar & theme
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-btn').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); });
+overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+document.getElementById('theme-btn').addEventListener('click', () => Theme.toggle());
+document.getElementById('logout-btn').addEventListener('click', async () => { if(confirm('Yakin keluar?')) await Auth.logout(); });
+
+// Init default year
+document.getElementById('f-year').value = new Date().getFullYear();
+
+// Load user info
+(async () => {
+  const session = await Auth.requireAuth();
+  if (!session) return;
+  try {
+    const user = await Auth.getProfile(session.user.id);
+    document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+    document.querySelectorAll('[data-user-nim]').forEach(el => el.textContent = user.nim);
+    const initials = user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+  } catch {}
+  Uploader.init();
+})();
+</script>
+</body>
+</html>

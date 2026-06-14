@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File — Kesling Archive D3</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div class="sidebar-logo-text">
+        <div class="app-name">Kesling Archive</div>
+        <div class="app-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </a>
+    <div class="sidebar-section">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="upload.html" class="nav-item"><span class="nav-icon">⬆️</span> Upload File</a>
+      <a href="search.html" class="nav-item"><span class="nav-icon">🔍</span> Cari File</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Semester</div>
+      <div class="semester-nav" id="sem-nav">
+        <a href="files.html?sem=1" class="nav-item"><span class="nav-icon">📚</span> Semester 1</a>
+        <a href="files.html?sem=2" class="nav-item"><span class="nav-icon">📚</span> Semester 2</a>
+        <a href="files.html?sem=3" class="nav-item"><span class="nav-icon">📚</span> Semester 3</a>
+        <a href="files.html?sem=4" class="nav-item"><span class="nav-icon">📚</span> Semester 4</a>
+        <a href="files.html?sem=5" class="nav-item"><span class="nav-icon">📚</span> Semester 5</a>
+        <a href="files.html?sem=6" class="nav-item"><span class="nav-icon">📚</span> Semester 6</a>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Khusus</div>
+      <a href="files.html?cat=PKL" class="nav-item"><span class="nav-icon">🏥</span> PKL</a>
+      <a href="files.html?cat=Tugas+Akhir" class="nav-item"><span class="nav-icon">🎓</span> Tugas Akhir</a>
+      <a href="files.html?cat=Sertifikat" class="nav-item"><span class="nav-icon">🏆</span> Sertifikat</a>
+      <a href="files.html?cat=Administrasi" class="nav-item"><span class="nav-icon">📋</span> Administrasi</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="avatar-placeholder" data-user-initials style="width:36px;height:36px;font-size:.9rem">?</div>
+        <div class="sidebar-user-info">
+          <div class="u-name" data-user-name>—</div>
+          <div class="u-nim" data-user-nim>-</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="menu-btn">☰</button>
+        <span class="header-title" id="page-title">Semua File</span>
+      </div>
+      <div class="header-actions">
+        <div class="view-toggle">
+          <button class="view-btn active" id="view-grid">▦</button>
+          <button class="view-btn" id="view-list">☰</button>
+        </div>
+        <a href="upload.html" class="btn btn-primary btn-sm">+ Upload</a>
+        <button class="header-btn" id="theme-btn"><span id="theme-icon">🌙</span></button>
+        <button class="header-btn" id="logout-btn">🚪</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="breadcrumb" id="breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <span class="sep">›</span>
+        <span class="current" id="bc-current">File</span>
+      </div>
+
+      <!-- Category Filter Chips -->
+      <div class="filter-bar" id="cat-filter">
+        <button class="filter-chip active" data-cat="">Semua</button>
+        <button class="filter-chip" data-cat="Tugas">Tugas</button>
+        <button class="filter-chip" data-cat="Makalah">Makalah</button>
+        <button class="filter-chip" data-cat="Laporan Praktikum">Laporan Praktikum</button>
+        <button class="filter-chip" data-cat="Presentasi">Presentasi</button>
+        <button class="filter-chip" data-cat="Jurnal">Jurnal</button>
+        <button class="filter-chip" data-cat="Modul">Modul</button>
+      </div>
+
+      <div id="result-count" style="font-size:.85rem;color:var(--text-muted);margin-bottom:14px"></div>
+
+      <div class="files-grid" id="files-container"></div>
+    </main>
+  </div>
+</div>
+
+<!-- File Viewer Modal -->
+<div class="modal-backdrop" id="viewer-modal">
+  <div class="modal file-viewer-modal">
+    <div class="modal-header">
+      <h3 id="viewer-title">Preview</h3>
+      <button class="modal-close" onclick="FileViewer.close()">✕</button>
+    </div>
+    <div id="viewer-body"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-ghost" onclick="FileViewer.close()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/dashboard.js"></script>
+<script>
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-btn').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); });
+overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+document.getElementById('theme-btn').addEventListener('click', () => Theme.toggle());
+document.getElementById('logout-btn').addEventListener('click', async () => { if(confirm('Yakin keluar?')) await Auth.logout(); });
+
+// View toggle
+document.getElementById('view-grid').addEventListener('click', function () {
+  this.classList.add('active'); document.getElementById('view-list').classList.remove('active');
+  document.getElementById('files-container').className = 'files-grid';
+});
+document.getElementById('view-list').addEventListener('click', function () {
+  this.classList.add('active'); document.getElementById('view-grid').classList.remove('active');
+  document.getElementById('files-container').className = 'files-list';
+});
+
+// Active sidebar item
+const params = new URLSearchParams(location.search);
+const semParam = params.get('sem');
+const catParam = params.get('cat');
+document.querySelectorAll('#sem-nav .nav-item').forEach(link => {
+  if (semParam && link.href.includes(`sem=${semParam}`)) link.classList.add('active');
+});
+
+// Set page title
+if (semParam) {
+  document.getElementById('page-title').textContent = `Semester ${semParam}`;
+  document.getElementById('bc-current').textContent = `Semester ${semParam}`;
+} else if (catParam) {
+  document.getElementById('page-title').textContent = catParam;
+  document.getElementById('bc-current').textContent = catParam;
+}
+
+let currentCatFilter = catParam || '';
+let allFiles = [];
+
+function renderFiles(files) {
+  const container = document.getElementById('files-container');
+  document.getElementById('result-count').textContent = `${files.length} file ditemukan`;
+
+  if (files.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📂</div><h3>Belum ada file</h3><p>Upload file untuk semester/kategori ini</p><a href="upload.html" class="btn btn-primary" style="margin-top:12px">Upload File</a></div>`;
+    return;
+  }
+
+  container.innerHTML = files.map(f => FileCard.render(f)).join('');
+  container.querySelectorAll('.file-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('.file-card-actions'))
+        FileViewer.open(card.dataset.fileUrl, card.dataset.fileType, card.dataset.fileTitle);
+    });
+  });
+  container.querySelectorAll('[data-action="download"]').forEach(btn => {
+    btn.addEventListener('click', () => FileActions.download(btn.dataset.url, btn.dataset.name));
+  });
+  container.querySelectorAll('[data-action="fav"]').forEach(btn => {
+    btn.addEventListener('click', () => FileActions.toggleFav(btn.dataset.id, btn));
+  });
+  container.querySelectorAll('[data-action="delete"]').forEach(btn => {
+    btn.addEventListener('click', () => FileActions.confirmDelete(btn.dataset.id, btn.dataset.path));
+  });
+}
+
+function applyFilter(cat) {
+  currentCatFilter = cat;
+  document.querySelectorAll('#cat-filter .filter-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.cat === cat);
+  });
+  const filtered = cat ? allFiles.filter(f => f.category === cat) : allFiles;
+  renderFiles(filtered);
+}
+
+document.querySelectorAll('#cat-filter .filter-chip').forEach(chip => {
+  chip.addEventListener('click', () => applyFilter(chip.dataset.cat));
+});
+
+(async () => {
+  const session = await Auth.requireAuth();
+  if (!session) return;
+
+  try {
+    const user = await Auth.getProfile(session.user.id);
+    document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+    document.querySelectorAll('[data-user-nim]').forEach(el => el.textContent = user.nim);
+    const initials = user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+  } catch {}
+
+  // Load files
+  const container = document.getElementById('files-container');
+  container.innerHTML = `
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+  `;
+
+  let query = window.supabaseClient.from('files').select('*').eq('user_id', session.user.id);
+  if (semParam) query = query.eq('semester', parseInt(semParam));
+  if (catParam) query = query.eq('category', catParam);
+  query = query.order('created_at', { ascending: false });
+
+  const { data } = await query;
+  allFiles = data || [];
+
+  // Set active chip if catParam
+  if (catParam) {
+    document.querySelectorAll('#cat-filter .filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.cat === catParam);
+    });
+  }
+
+  renderFiles(allFiles);
+})();
+</script>
+</body>
+</html>

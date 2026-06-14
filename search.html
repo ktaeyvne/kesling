@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cari File — Kesling Archive D3</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div class="sidebar-logo-text">
+        <div class="app-name">Kesling Archive</div>
+        <div class="app-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </a>
+    <div class="sidebar-section">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="upload.html" class="nav-item"><span class="nav-icon">⬆️</span> Upload File</a>
+      <a href="search.html" class="nav-item active"><span class="nav-icon">🔍</span> Cari File</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Semester</div>
+      <div class="semester-nav">
+        <a href="files.html?sem=1" class="nav-item"><span class="nav-icon">📚</span> Semester 1</a>
+        <a href="files.html?sem=2" class="nav-item"><span class="nav-icon">📚</span> Semester 2</a>
+        <a href="files.html?sem=3" class="nav-item"><span class="nav-icon">📚</span> Semester 3</a>
+        <a href="files.html?sem=4" class="nav-item"><span class="nav-icon">📚</span> Semester 4</a>
+        <a href="files.html?sem=5" class="nav-item"><span class="nav-icon">📚</span> Semester 5</a>
+        <a href="files.html?sem=6" class="nav-item"><span class="nav-icon">📚</span> Semester 6</a>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="avatar-placeholder" data-user-initials style="width:36px;height:36px;font-size:.9rem">?</div>
+        <div class="sidebar-user-info">
+          <div class="u-name" data-user-name>Loading...</div>
+          <div class="u-nim" data-user-nim>-</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="menu-btn">☰</button>
+        <span class="header-title">Cari File</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" id="theme-btn"><span id="theme-icon">🌙</span></button>
+        <button class="header-btn" id="logout-btn">🚪</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <!-- Search Box -->
+      <div class="card" style="margin-bottom:20px">
+        <div style="position:relative">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;pointer-events:none">🔍</span>
+          <input
+            class="form-input"
+            type="text"
+            id="main-search"
+            placeholder="Cari judul, mata kuliah, kategori, tag..."
+            style="padding-left:44px;font-size:1rem"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-bar" style="margin-bottom:20px">
+        <select class="form-select" id="fil-semester" style="width:auto;padding:7px 12px;font-size:.85rem">
+          <option value="">Semua Semester</option>
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+          <option value="3">Semester 3</option>
+          <option value="4">Semester 4</option>
+          <option value="5">Semester 5</option>
+          <option value="6">Semester 6</option>
+        </select>
+        <select class="form-select" id="fil-category" style="width:auto;padding:7px 12px;font-size:.85rem">
+          <option value="">Semua Kategori</option>
+          <option>Tugas</option>
+          <option>Makalah</option>
+          <option>Laporan Praktikum</option>
+          <option>Presentasi</option>
+          <option>Jurnal</option>
+          <option>Modul</option>
+          <option>PKL</option>
+          <option>Tugas Akhir</option>
+          <option>Sertifikat</option>
+          <option>Administrasi</option>
+          <option>Praktikum Mikrobiologi</option>
+          <option>Praktikum Air Bersih</option>
+          <option>Praktikum Air Limbah</option>
+          <option>Praktikum Sanitasi</option>
+        </select>
+        <select class="form-select" id="fil-year" style="width:auto;padding:7px 12px;font-size:.85rem">
+          <option value="">Semua Tahun</option>
+          <option>2025</option>
+          <option>2024</option>
+          <option>2023</option>
+          <option>2022</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="btn-search">Cari</button>
+        <button class="btn btn-ghost btn-sm" id="btn-reset">Reset</button>
+      </div>
+
+      <!-- Result Count -->
+      <div id="result-info" style="font-size:.85rem;color:var(--text-muted);margin-bottom:14px"></div>
+
+      <!-- Results Grid -->
+      <div class="files-grid" id="search-results">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">🔍</div>
+          <h3>Mulai pencarian</h3>
+          <p>Ketik kata kunci untuk mencari file arsipmu</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- File Viewer Modal -->
+<div class="modal-backdrop" id="viewer-modal">
+  <div class="modal file-viewer-modal">
+    <div class="modal-header">
+      <h3 id="viewer-title">Preview</h3>
+      <button class="modal-close" onclick="FileViewer.close()">✕</button>
+    </div>
+    <div id="viewer-body"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-ghost" onclick="FileViewer.close()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/dashboard.js"></script>
+<script>
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-btn').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); });
+overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+document.getElementById('theme-btn').addEventListener('click', () => Theme.toggle());
+document.getElementById('logout-btn').addEventListener('click', async () => { if(confirm('Yakin keluar?')) await Auth.logout(); });
+
+async function doSearch() {
+  const q = document.getElementById('main-search').value.trim();
+  const semester = document.getElementById('fil-semester').value;
+  const category = document.getElementById('fil-category').value;
+  const year = document.getElementById('fil-year').value;
+  const grid = document.getElementById('search-results');
+  const info = document.getElementById('result-info');
+
+  grid.innerHTML = `
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+    <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+  `;
+
+  const results = await Search.fullSearch(q, { semester, category, year });
+  info.textContent = `Ditemukan ${results.length} file${q ? ` untuk "${q}"` : ''}`;
+
+  if (results.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">😕</div><h3>Tidak ditemukan</h3><p>Coba kata kunci atau filter yang berbeda</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = results.map(f => FileCard.render(f)).join('');
+  grid.querySelectorAll('.file-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('.file-card-actions')) {
+        FileViewer.open(card.dataset.fileUrl, card.dataset.fileType, card.dataset.fileTitle);
+      }
+    });
+  });
+  grid.querySelectorAll('[data-action="download"]').forEach(btn => {
+    btn.addEventListener('click', () => FileActions.download(btn.dataset.url, btn.dataset.name));
+  });
+  grid.querySelectorAll('[data-action="delete"]').forEach(btn => {
+    btn.addEventListener('click', () => FileActions.confirmDelete(btn.dataset.id, btn.dataset.path));
+  });
+}
+
+document.getElementById('btn-search').addEventListener('click', doSearch);
+document.getElementById('main-search').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+document.getElementById('btn-reset').addEventListener('click', () => {
+  document.getElementById('main-search').value = '';
+  document.getElementById('fil-semester').value = '';
+  document.getElementById('fil-category').value = '';
+  document.getElementById('fil-year').value = '';
+  document.getElementById('result-info').textContent = '';
+  document.getElementById('search-results').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>Mulai pencarian</h3><p>Ketik kata kunci untuk mencari file arsipmu</p></div>`;
+});
+
+// Init user
+(async () => {
+  const session = await Auth.requireAuth();
+  if (!session) return;
+  try {
+    const user = await Auth.getProfile(session.user.id);
+    document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+    document.querySelectorAll('[data-user-nim]').forEach(el => el.textContent = user.nim);
+    const initials = user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+  } catch {}
+
+  // Auto-search jika ada query param
+  const params = new URLSearchParams(location.search);
+  const q = params.get('q');
+  if (q) {
+    document.getElementById('main-search').value = q;
+    doSearch();
+  }
+})();
+</script>
+</body>
+</html>

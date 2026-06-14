@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daftar — Kesling Archive D3</title>
+  <!-- Supabase HARUS dimuat pertama, synchronous -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="auth-bg-decor"></div>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🌿</div>
+      <div>
+        <div class="auth-logo-name">Kesling Archive</div>
+        <div class="auth-logo-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </div>
+
+    <h1 class="auth-title">Buat Akun</h1>
+    <p class="auth-subtitle">Daftarkan dirimu untuk mulai mengarsip</p>
+
+    <form class="auth-form" id="reg-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="name">Nama Lengkap</label>
+        <input class="form-input" type="text" id="name" placeholder="Nama sesuai KTM" required />
+        <span class="form-error" id="name-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="nim">NIM</label>
+        <input class="form-input" type="text" id="nim" placeholder="Nomor Induk Mahasiswa" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="angkatan">Angkatan</label>
+        <select class="form-select" id="angkatan">
+          <option value="">Pilih Angkatan</option>
+          <option>2022</option>
+          <option>2023</option>
+          <option>2024</option>
+          <option>2025</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="email@example.com" required />
+        <span class="form-error" id="email-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="Min. 8 karakter" required />
+        <span class="form-error" id="pw-err"></span>
+        <span class="form-hint">Gunakan kombinasi huruf, angka, dan simbol</span>
+      </div>
+
+      <button class="btn btn-primary w-full btn-lg" type="submit" id="reg-btn">
+        Buat Akun
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Sudah punya akun? <a href="login.html">Masuk</a>
+    </p>
+  </div>
+</div>
+
+<!-- Script SETELAH Supabase CDN sudah ada di <head> -->
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+function waitReady(fn) {
+  if (window.supabaseClient) { fn(); return; }
+  document.addEventListener('supabase-ready', fn, { once: true });
+}
+
+waitReady(async () => {
+  const session = await Auth.getSession();
+  if (session) window.location.href = 'dashboard.html';
+});
+
+document.getElementById('reg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!window.supabaseClient) {
+    Toast.show('Koneksi belum siap, coba lagi sebentar', 'error');
+    return;
+  }
+
+  const name     = document.getElementById('name').value.trim();
+  const nim      = document.getElementById('nim').value.trim();
+  const angkatan = document.getElementById('angkatan').value;
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('reg-btn');
+
+  document.getElementById('name-err').textContent  = '';
+  document.getElementById('email-err').textContent = '';
+  document.getElementById('pw-err').textContent    = '';
+
+  if (!name)            { document.getElementById('name-err').textContent  = 'Nama tidak boleh kosong'; return; }
+  if (!email)           { document.getElementById('email-err').textContent = 'Email tidak boleh kosong'; return; }
+  if (password.length < 8) { document.getElementById('pw-err').textContent = 'Password minimal 8 karakter'; return; }
+
+  btn.textContent = '';
+  btn.classList.add('btn-loading');
+  btn.disabled = true;
+
+  try {
+    await Auth.register(email, password, { name, nim, angkatan });
+    Toast.show('Akun berhasil dibuat! Cek email untuk konfirmasi.', 'success', 5000);
+    setTimeout(() => window.location.href = 'login.html', 2000);
+  } catch (err) {
+    const msg = err.message.includes('already registered')
+      ? 'Email sudah terdaftar, silakan login'
+      : err.message;
+    Toast.show(msg, 'error');
+    btn.classList.remove('btn-loading');
+    btn.textContent = 'Buat Akun';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pengaturan — Kesling Archive D3</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div class="sidebar-logo-text">
+        <div class="app-name">Kesling Archive</div>
+        <div class="app-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </a>
+    <div class="sidebar-section">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="upload.html" class="nav-item"><span class="nav-icon">⬆️</span> Upload File</a>
+      <a href="search.html" class="nav-item"><span class="nav-icon">🔍</span> Cari File</a>
+      <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span> Profil</a>
+      <a href="settings.html" class="nav-item active"><span class="nav-icon">⚙️</span> Pengaturan</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="avatar-placeholder" data-user-initials style="width:36px;height:36px;font-size:.9rem">?</div>
+        <div class="sidebar-user-info">
+          <div class="u-name" data-user-name>—</div>
+          <div class="u-nim" data-user-nim>-</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="menu-btn">☰</button>
+        <span class="header-title">Pengaturan</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" id="theme-btn"><span id="theme-icon">🌙</span></button>
+        <button class="header-btn" id="logout-btn">🚪</button>
+      </div>
+    </header>
+
+    <main class="page-content" style="max-width:700px">
+
+      <!-- Tampilan -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <span>🎨</span><h3>Tampilan</h3>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h4>Dark Mode</h4>
+            <p>Ganti ke tampilan gelap yang lebih nyaman di malam hari</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="dark-mode-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Keamanan -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <span>🔒</span><h3>Keamanan</h3>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h4>Ubah Password</h4>
+            <p>Perbarui password akun kamu</p>
+          </div>
+          <button class="btn btn-outline btn-sm" id="open-pw-modal">Ubah Password</button>
+        </div>
+      </div>
+
+      <!-- Akun -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <span>👤</span><h3>Akun</h3>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h4>Email</h4>
+            <p id="acc-email">—</p>
+          </div>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h4>Keluar dari Semua Perangkat</h4>
+            <p>Logout dari semua sesi aktif</p>
+          </div>
+          <button class="btn btn-danger btn-sm" id="logout-all-btn">Logout Semua</button>
+        </div>
+      </div>
+
+      <!-- Tentang -->
+      <div class="settings-section">
+        <div class="settings-section-header">
+          <span>ℹ️</span><h3>Tentang Aplikasi</h3>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-info"><h4>Kesling Archive D3</h4><p>Arsip Digital Mahasiswa D3 Kesehatan Lingkungan</p></div>
+          <span class="badge badge-green">v1.0.0</span>
+        </div>
+        <div class="settings-item">
+          <div class="settings-item-info"><h4>Poltekkes</h4><p>D3 Kesehatan Lingkungan</p></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-backdrop" id="pw-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔒 Ubah Password</h3>
+      <button class="modal-close" id="close-pw-modal">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="form-group">
+        <label class="form-label">Password Baru</label>
+        <input class="form-input" type="password" id="new-pw" placeholder="Min. 8 karakter" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Konfirmasi Password</label>
+        <input class="form-input" type="password" id="confirm-pw" placeholder="Ulangi password baru" />
+        <span class="form-error" id="pw-modal-err"></span>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+        <button class="btn btn-ghost" id="cancel-pw-modal">Batal</button>
+        <button class="btn btn-primary" id="save-pw-btn">Simpan Password</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-btn').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); });
+overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+document.getElementById('theme-btn').addEventListener('click', () => Theme.toggle());
+document.getElementById('logout-btn').addEventListener('click', async () => { if(confirm('Yakin keluar?')) await Auth.logout(); });
+
+// Dark mode toggle sync
+const toggle = document.getElementById('dark-mode-toggle');
+toggle.checked = (localStorage.getItem('ka-theme') === 'dark');
+toggle.addEventListener('change', () => Theme.apply(toggle.checked ? 'dark' : 'light'));
+
+// Password modal
+document.getElementById('open-pw-modal').addEventListener('click', () => document.getElementById('pw-modal').classList.add('active'));
+document.getElementById('close-pw-modal').addEventListener('click', () => document.getElementById('pw-modal').classList.remove('active'));
+document.getElementById('cancel-pw-modal').addEventListener('click', () => document.getElementById('pw-modal').classList.remove('active'));
+
+document.getElementById('save-pw-btn').addEventListener('click', async () => {
+  const np = document.getElementById('new-pw').value;
+  const cp = document.getElementById('confirm-pw').value;
+  const errEl = document.getElementById('pw-modal-err');
+  errEl.textContent = '';
+  if (np.length < 8) { errEl.textContent = 'Password minimal 8 karakter'; return; }
+  if (np !== cp) { errEl.textContent = 'Password tidak cocok'; return; }
+  const btn = document.getElementById('save-pw-btn');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+  try {
+    await Auth.updatePassword(np);
+    Toast.show('Password berhasil diubah ✓', 'success');
+    document.getElementById('pw-modal').classList.remove('active');
+    document.getElementById('new-pw').value = '';
+    document.getElementById('confirm-pw').value = '';
+  } catch (err) { errEl.textContent = err.message; }
+  btn.disabled = false; btn.textContent = 'Simpan Password';
+});
+
+// Logout all
+document.getElementById('logout-all-btn').addEventListener('click', async () => {
+  if (confirm('Logout dari semua perangkat?')) await Auth.logout();
+});
+
+// Load user info
+(async () => {
+  const session = await Auth.requireAuth();
+  if (!session) return;
+  document.getElementById('acc-email').textContent = session.user.email;
+  try {
+    const user = await Auth.getProfile(session.user.id);
+    document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = user.name);
+    document.querySelectorAll('[data-user-nim]').forEach(el => el.textContent = user.nim);
+    const initials = user.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+  } catch {}
+})();
+</script>
+</body>
+</html>

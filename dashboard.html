@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Kesling Archive D3</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div class="sidebar-logo-text">
+        <div class="app-name">Kesling Archive</div>
+        <div class="app-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </a>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Menu Utama</div>
+      <a href="dashboard.html" class="nav-item active">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="upload.html" class="nav-item">
+        <span class="nav-icon">⬆️</span> Upload File
+      </a>
+      <a href="search.html" class="nav-item">
+        <span class="nav-icon">🔍</span> Cari File
+      </a>
+      <a href="#favorites" class="nav-item" id="nav-fav">
+        <span class="nav-icon">⭐</span> Favorit
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Semester</div>
+      <div class="semester-nav">
+        <a href="files.html?sem=1" class="nav-item"><span class="nav-icon">📚</span> Semester 1</a>
+        <a href="files.html?sem=2" class="nav-item"><span class="nav-icon">📚</span> Semester 2</a>
+        <a href="files.html?sem=3" class="nav-item"><span class="nav-icon">📚</span> Semester 3</a>
+        <a href="files.html?sem=4" class="nav-item"><span class="nav-icon">📚</span> Semester 4</a>
+        <a href="files.html?sem=5" class="nav-item"><span class="nav-icon">📚</span> Semester 5</a>
+        <a href="files.html?sem=6" class="nav-item"><span class="nav-icon">📚</span> Semester 6</a>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Khusus</div>
+      <a href="files.html?cat=PKL" class="nav-item"><span class="nav-icon">🏥</span> PKL</a>
+      <a href="files.html?cat=Tugas+Akhir" class="nav-item"><span class="nav-icon">🎓</span> Tugas Akhir</a>
+      <a href="files.html?cat=Sertifikat" class="nav-item"><span class="nav-icon">🏆</span> Sertifikat</a>
+      <a href="files.html?cat=Administrasi" class="nav-item"><span class="nav-icon">📋</span> Administrasi</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <!-- Storage usage -->
+      <div class="storage-bar" style="margin-bottom:10px">
+        <div class="flex justify-between" style="font-size:.8rem;font-weight:600">
+          <span>Penyimpanan</span>
+          <span id="storage-used">0 B</span>
+        </div>
+        <div class="storage-bar-track">
+          <div class="storage-bar-fill" id="storage-fill" style="width:0%"></div>
+        </div>
+        <div class="storage-labels"><span>0 B</span><span>1 GB</span></div>
+      </div>
+      <a href="profile.html" class="sidebar-user">
+        <div class="avatar-placeholder" data-user-initials style="width:36px;height:36px;font-size:.9rem">?</div>
+        <div class="sidebar-user-info">
+          <div class="u-name" data-user-name>Loading...</div>
+          <div class="u-nim" data-user-nim>-</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Overlay mobile ── -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── Main ── -->
+  <div class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="menu-btn">☰</button>
+        <span class="header-title">Dashboard</span>
+      </div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="global-search" placeholder="Cari file, mata kuliah, semester..." autocomplete="off" />
+        <div class="search-dropdown" id="search-dropdown"></div>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" id="theme-btn" title="Ganti tema"><span id="theme-icon">🌙</span></button>
+        <a href="upload.html" class="btn btn-primary btn-sm">+ Upload</a>
+        <button class="header-btn" id="logout-btn" title="Keluar">🚪</button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <!-- Welcome Banner -->
+      <div style="background:linear-gradient(135deg,var(--green-600),var(--teal-600));border-radius:var(--radius-xl);padding:24px 28px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden">
+        <div style="position:absolute;right:20px;top:10px;font-size:5rem;opacity:.12">🌿</div>
+        <h2 style="color:#fff;margin-bottom:4px">Selamat datang, <span data-user-name>—</span> 👋</h2>
+        <p style="color:rgba(255,255,255,.8);margin:0">Arsip digital D3 Kesehatan Lingkungan kamu tersimpan aman di sini.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-green">📁</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Total File</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-blue">⭐</div>
+          <div class="stat-value" id="stat-fav">—</div>
+          <div class="stat-label">Favorit</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-purple">📝</div>
+          <div class="stat-value" id="stat-makalah">—</div>
+          <div class="stat-label">Makalah</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-orange">🔬</div>
+          <div class="stat-value" id="stat-laprak">—</div>
+          <div class="stat-label">Laporan Praktikum</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-teal">📊</div>
+          <div class="stat-value" id="stat-ppt">—</div>
+          <div class="stat-label">Presentasi</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-green">🏥</div>
+          <div class="stat-value" id="stat-pkl">—</div>
+          <div class="stat-label">PKL</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-blue">🎓</div>
+          <div class="stat-value" id="stat-ta">—</div>
+          <div class="stat-label">Tugas Akhir</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-icon-purple">🏆</div>
+          <div class="stat-value" id="stat-sertifikat">—</div>
+          <div class="stat-label">Sertifikat</div>
+        </div>
+      </div>
+
+      <!-- Semester Grid -->
+      <div class="section-header" style="margin-bottom:16px">
+        <h2 class="section-title">📚 Semester</h2>
+        <a href="files.html" class="btn btn-ghost btn-sm">Lihat Semua</a>
+      </div>
+      <div class="semester-grid" style="margin-bottom:28px">
+        <a href="files.html?sem=1" class="semester-card">
+          <div class="semester-card-icon">📗</div>
+          <div class="semester-card-title">Semester 1</div>
+          <div class="semester-card-count">Dasar Kesehatan Lingkungan</div>
+          <div class="semester-card-bar"><div class="semester-card-bar-fill" style="width:30%"></div></div>
+        </a>
+        <a href="files.html?sem=2" class="semester-card">
+          <div class="semester-card-icon">📘</div>
+          <div class="semester-card-title">Semester 2</div>
+          <div class="semester-card-count">Sanitasi & Hygiene</div>
+          <div class="semester-card-bar"><div class="semester-card-bar-fill" style="width:45%"></div></div>
+        </a>
+        <a href="files.html?sem=3" class="semester-card">
+          <div class="semester-card-icon">📙</div>
+          <div class="semester-card-title">Semester 3</div>
+          <div class="semester-card-count">Air Bersih & Limbah</div>
+          <div class="semester-card-bar"><div class="semester-card-bar-fill" style="width:60%"></div></div>
+        </a>
+        <a href="files.html?sem=4" class="semester-card">
+          <div class="semester-card-icon">📕</div>
+          <div class="semester-card-title">Semester 4</div>
+          <div class="semester-card-count">Vektor & Epidemiologi</div>
+          <div class="semester-card-bar"><div class="semester-card-bar-fill" style="width:55%"></div></div>
+        </a>
+        <a href="files.html?sem=5" class="semester-card">
+          <div class="semester-card-icon">📒</div>
+          <div class="semester-card-title">Semester 5</div>
+          <div class="semester-card-count">K3 & AMDAL</div>
+          <div class="semester-card-bar"><div class="semester-card-bar-fill" style="width:40%"></div></div>
+        </a>
+        <a href="files.html?sem=6" class="semester-card">
+          <div class="semester-card-icon">📓</div>
+          <div class="semester-card-title">Semester 6</div>
+          <div class="semester-card-count">Tugas Akhir & PKL</div>
+          <div class="semester-card-bar"><div class="semester-card-bar-fill" style="width:20%"></div></div>
+        </a>
+      </div>
+
+      <!-- Recent Files + Activity -->
+      <div class="dashboard-grid">
+        <div class="dashboard-main">
+          <div>
+            <div class="section-header">
+              <h2 class="section-title">🕐 File Terbaru</h2>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="view-toggle">
+                  <button class="view-btn active" id="view-grid" title="Grid">▦</button>
+                  <button class="view-btn" id="view-list" title="List">☰</button>
+                </div>
+                <a href="files.html" class="btn btn-ghost btn-sm">Lihat Semua</a>
+              </div>
+            </div>
+            <div class="files-grid" id="recent-files-grid">
+              <!-- Skeleton loading -->
+              <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+              <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+              <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+              <div class="skeleton" style="height:160px;border-radius:var(--radius-lg)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-side">
+          <div class="card">
+            <h3 style="margin-bottom:14px">🕐 Aktivitas Terbaru</h3>
+            <div class="activity-list" id="activity-list">
+              <div class="skeleton" style="height:56px;border-radius:var(--radius)"></div>
+              <div class="skeleton" style="height:56px;border-radius:var(--radius)"></div>
+              <div class="skeleton" style="height:56px;border-radius:var(--radius)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- File Viewer Modal -->
+<div class="modal-backdrop" id="viewer-modal">
+  <div class="modal file-viewer-modal">
+    <div class="modal-header">
+      <h3 id="viewer-title">Preview File</h3>
+      <button class="modal-close" onclick="FileViewer.close()">✕</button>
+    </div>
+    <div id="viewer-body"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-ghost" onclick="FileViewer.close()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA Install Banner -->
+<div id="pwa-banner">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:1.5rem">🌿</span>
+    <div>
+      <div style="font-size:.9rem;font-weight:700">Install Kesling Archive</div>
+      <div style="font-size:.75rem;color:var(--text-muted)">Akses lebih cepat seperti aplikasi Android</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-ghost btn-sm" id="pwa-dismiss">Nanti</button>
+    <button class="btn btn-primary btn-sm" id="pwa-install">Install</button>
+  </div>
+</div>
+
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/dashboard.js"></script>
+<script src="assets/js/search.js"></script>
+<script>
+// ── Sidebar mobile toggle ──
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-btn').addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+});
+overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+// ── Theme toggle ──
+document.getElementById('theme-btn').addEventListener('click', () => Theme.toggle());
+
+// ── Logout ──
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  if (confirm('Yakin ingin keluar?')) await Auth.logout();
+});
+
+// ── View toggle ──
+document.getElementById('view-grid').addEventListener('click', function () {
+  this.classList.add('active');
+  document.getElementById('view-list').classList.remove('active');
+  const grid = document.getElementById('recent-files-grid');
+  grid.className = 'files-grid';
+});
+document.getElementById('view-list').addEventListener('click', function () {
+  this.classList.add('active');
+  document.getElementById('view-grid').classList.remove('active');
+  const grid = document.getElementById('recent-files-grid');
+  grid.className = 'files-list';
+});
+
+// ── PWA Install ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('pwa-dismissed')) {
+    document.getElementById('pwa-banner').classList.add('show');
+  }
+});
+document.getElementById('pwa-install')?.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') Toast.show('App berhasil diinstall! 🎉', 'success');
+    deferredPrompt = null;
+    document.getElementById('pwa-banner').classList.remove('show');
+  }
+});
+document.getElementById('pwa-dismiss')?.addEventListener('click', () => {
+  localStorage.setItem('pwa-dismissed', '1');
+  document.getElementById('pwa-banner').classList.remove('show');
+});
+
+// ── Init ──
+Dashboard.init();
+
+// ── Register SW ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('pwa/service-worker.js').catch(() => {});
+}
+</script>
+</body>
+</html>

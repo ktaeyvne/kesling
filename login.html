@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Kesling Archive D3</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+</head>
+<body>
+<div class="auth-bg-decor"></div>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">🌿</div>
+      <div>
+        <div class="auth-logo-name">Kesling Archive</div>
+        <div class="auth-logo-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </div>
+
+    <h1 class="auth-title">Selamat Datang</h1>
+    <p class="auth-subtitle">Masuk ke arsip digital kuliahmu</p>
+
+    <form class="auth-form" id="login-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="email@example.com" autocomplete="email" required />
+        <span class="form-error" id="email-err"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div style="position:relative">
+          <input class="form-input" type="password" id="password" placeholder="Masukkan password"
+            autocomplete="current-password" required style="padding-right:44px" />
+          <button type="button" id="toggle-pw"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-faint)">👁️</button>
+        </div>
+        <span class="form-error" id="pw-err"></span>
+      </div>
+      <div style="text-align:right;margin-top:-8px">
+        <a href="forgot.html" style="font-size:.825rem;color:var(--primary)">Lupa password?</a>
+      </div>
+      <button class="btn btn-primary w-full btn-lg" type="submit" id="login-btn">Masuk</button>
+    </form>
+
+    <p class="auth-footer">
+      Belum punya akun? <a href="register.html">Daftar sekarang</a>
+    </p>
+  </div>
+</div>
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+function waitReady(fn) {
+  if (window.supabaseClient) { fn(); return; }
+  document.addEventListener('supabase-ready', fn, { once: true });
+}
+
+waitReady(async () => {
+  const session = await Auth.getSession();
+  if (session) window.location.href = 'dashboard.html';
+});
+
+document.getElementById('toggle-pw').addEventListener('click', function () {
+  const inp = document.getElementById('password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  this.textContent = inp.type === 'password' ? '👁️' : '🙈';
+});
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!window.supabaseClient) { Toast.show('Koneksi belum siap, tunggu sebentar', 'error'); return; }
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('login-btn');
+
+  document.getElementById('email-err').textContent = '';
+  document.getElementById('pw-err').textContent    = '';
+
+  if (!email)    { document.getElementById('email-err').textContent = 'Email tidak boleh kosong'; return; }
+  if (!password) { document.getElementById('pw-err').textContent   = 'Password tidak boleh kosong'; return; }
+
+  btn.classList.add('btn-loading');
+  btn.textContent = '';
+  btn.disabled = true;
+
+  try {
+    await Auth.login(email, password);
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    const msg = err.message.includes('Invalid login credentials')
+      ? 'Email atau password salah'
+      : err.message;
+    Toast.show(msg, 'error');
+    btn.classList.remove('btn-loading');
+    btn.textContent = 'Masuk';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil — Kesling Archive D3</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+  <link rel="manifest" href="pwa/manifest.json" />
+  <meta name="theme-color" content="#16a34a" />
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <div class="sidebar-logo-icon">🌿</div>
+      <div class="sidebar-logo-text">
+        <div class="app-name">Kesling Archive</div>
+        <div class="app-tag">D3 Kesehatan Lingkungan</div>
+      </div>
+    </a>
+    <div class="sidebar-section">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="upload.html" class="nav-item"><span class="nav-icon">⬆️</span> Upload File</a>
+      <a href="search.html" class="nav-item"><span class="nav-icon">🔍</span> Cari File</a>
+      <a href="profile.html" class="nav-item active"><span class="nav-icon">👤</span> Profil</a>
+      <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span> Pengaturan</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="profile.html" class="sidebar-user">
+        <div class="avatar-placeholder" data-user-initials style="width:36px;height:36px;font-size:.9rem">?</div>
+        <div class="sidebar-user-info">
+          <div class="u-name" data-user-name>—</div>
+          <div class="u-nim" data-user-nim>-</div>
+        </div>
+      </a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button class="mobile-menu-btn" id="menu-btn">☰</button>
+        <span class="header-title">Profil Saya</span>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" id="theme-btn"><span id="theme-icon">🌙</span></button>
+        <button class="header-btn" id="logout-btn">🚪</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <!-- Header Card -->
+      <div class="profile-header-card">
+        <div class="profile-avatar-wrap">
+          <div class="avatar-placeholder" id="profile-avatar" style="width:80px;height:80px;font-size:2rem;border:3px solid rgba(255,255,255,.4)">?</div>
+          <label class="profile-change-avatar" title="Ganti foto" style="cursor:pointer">
+            📷
+            <input type="file" id="avatar-input" accept="image/*" style="display:none" />
+          </label>
+        </div>
+        <div class="profile-info">
+          <div class="name" id="prof-name">—</div>
+          <div class="nim" id="prof-nim">NIM: —</div>
+          <div class="prodi">🌿 <span id="prof-prodi">D3 Kesehatan Lingkungan</span></div>
+          <div class="profile-stats-row">
+            <div class="profile-stat">
+              <div class="profile-stat-val" id="prof-total">—</div>
+              <div class="profile-stat-lbl">Total File</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val" id="prof-fav">—</div>
+              <div class="profile-stat-lbl">Favorit</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-val" id="prof-angkatan">—</div>
+              <div class="profile-stat-lbl">Angkatan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Form -->
+      <div class="card" style="max-width:600px">
+        <h3 style="margin-bottom:20px">✏️ Edit Profil</h3>
+        <form id="profile-form" style="display:flex;flex-direction:column;gap:16px">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input class="form-input" type="text" id="inp-name" placeholder="Nama lengkap" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">NIM</label>
+            <input class="form-input" type="text" id="inp-nim" placeholder="Nomor Induk Mahasiswa" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Angkatan</label>
+            <select class="form-select" id="inp-angkatan">
+              <option value="">Pilih Angkatan</option>
+              <option>2022</option><option>2023</option><option>2024</option><option>2025</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Program Studi</label>
+            <input class="form-input" type="text" id="inp-prodi" value="D3 Kesehatan Lingkungan" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" id="inp-email" disabled />
+            <span class="form-hint">Email tidak bisa diubah</span>
+          </div>
+          <button class="btn btn-primary" type="submit" id="save-profile-btn">Simpan Perubahan</button>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>
+
+
+<script src="supabase/supabase.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+document.getElementById('menu-btn').addEventListener('click', () => { sidebar.classList.toggle('open'); overlay.classList.toggle('show'); });
+overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+document.getElementById('theme-btn').addEventListener('click', () => Theme.toggle());
+document.getElementById('logout-btn').addEventListener('click', async () => { if(confirm('Yakin keluar?')) await Auth.logout(); });
+
+let currentUser = null, session = null;
+
+(async () => {
+  session = await Auth.requireAuth();
+  if (!session) return;
+
+  try { currentUser = await Auth.getProfile(session.user.id); } catch {}
+  if (!currentUser) currentUser = { name: session.user.email, nim: '', angkatan: '', program_studi: 'D3 Kesehatan Lingkungan' };
+
+  const initials = (currentUser.name || '?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.querySelectorAll('[data-user-initials]').forEach(el => el.textContent = initials);
+  document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = currentUser.name);
+  document.querySelectorAll('[data-user-nim]').forEach(el => el.textContent = currentUser.nim || '-');
+
+  document.getElementById('prof-name').textContent = currentUser.name || '—';
+  document.getElementById('prof-nim').textContent = 'NIM: ' + (currentUser.nim || '—');
+  document.getElementById('prof-prodi').textContent = currentUser.program_studi || 'D3 Kesehatan Lingkungan';
+  document.getElementById('prof-angkatan').textContent = currentUser.angkatan || '—';
+  document.getElementById('profile-avatar').textContent = initials;
+
+  if (currentUser.avatar) {
+    document.getElementById('profile-avatar').innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />`;
+  }
+
+  document.getElementById('inp-name').value = currentUser.name || '';
+  document.getElementById('inp-nim').value = currentUser.nim || '';
+  document.getElementById('inp-angkatan').value = currentUser.angkatan || '';
+  document.getElementById('inp-prodi').value = currentUser.program_studi || 'D3 Kesehatan Lingkungan';
+  document.getElementById('inp-email').value = session.user.email || '';
+
+  // Stats
+  const { count: totalFiles } = await window.supabaseClient.from('files').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id);
+  const { count: totalFavs } = await window.supabaseClient.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id);
+  document.getElementById('prof-total').textContent = totalFiles || 0;
+  document.getElementById('prof-fav').textContent = totalFavs || 0;
+})();
+
+// Avatar upload
+document.getElementById('avatar-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file || !session) return;
+  if (file.size > 2 * 1024 * 1024) { Toast.show('Foto maksimal 2MB', 'error'); return; }
+  Loader.show('Mengupload foto...');
+  try {
+    const path = `avatars/${session.user.id}-${Date.now()}.${file.name.split('.').pop()}`;
+    await StorageHelper.upload(file, path);
+    const url = StorageHelper.getPublicUrl(path);
+    await Auth.updateProfile(session.user.id, { avatar: url });
+    document.getElementById('profile-avatar').innerHTML = `<img src="${url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" />`;
+    Toast.show('Foto profil diperbarui', 'success');
+  } catch (err) { Toast.show('Gagal upload foto: ' + err.message, 'error'); }
+  finally { Loader.hide(); }
+});
+
+// Save profile
+document.getElementById('profile-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('save-profile-btn');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+  try {
+    const updated = await Auth.updateProfile(session.user.id, {
+      name: document.getElementById('inp-name').value.trim(),
+      nim: document.getElementById('inp-nim').value.trim(),
+      angkatan: document.getElementById('inp-angkatan').value,
+      program_studi: document.getElementById('inp-prodi').value.trim()
+    });
+    Toast.show('Profil berhasil diperbarui ✓', 'success');
+    document.getElementById('prof-name').textContent = updated.name;
+  } catch (err) { Toast.show('Gagal menyimpan: ' + err.message, 'error'); }
+  btn.disabled = false; btn.textContent = 'Simpan Perubahan';
+});
+</script>
+</body>
+</html>
